@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><div style="max-width: 900px; margin: 0 auto;"><a href="/">Home</a><h1><a href="#20170911" id="20170911"></a>2017/09/11</h1>
+<pre><code>(set-env!
+  :source-paths #{&quot;src&quot;}
+  :resource-paths #{&quot;resources&quot;}
+  :target-path #{&quot;../223kazuki.github.io&quot;}
+  :dependencies '[[perun &quot;0.4.2-SNAPSHOT&quot;]
+                  [hiccup &quot;1.0.5&quot;]
+                  [pandeiro/boot-http &quot;0.6.3-SNAPSHOT&quot;]])
+
+(require '[clojure.string :as str]
+         '[io.perun :refer :all]
+         '[pandeiro.boot-http :refer [serve]])
+
+(task-options!
+  markdown   {:out-dir &quot;./&quot;}
+  render     {:out-dir &quot;./&quot;}
+  collection {:out-dir &quot;./&quot;}
+  static     {:out-dir &quot;./&quot;}
+  serve      {:resource-root &quot;./&quot;})
+
+(deftask build
+  []
+  (comp (global-metadata)
+        (markdown)
+        (draft)
+        (print-meta)
+        ;; (slug)
+        (ttr)
+        (word-count)
+        (build-date)
+        (gravatar :source-key :author-email :target-key :author-gravatar)
+        (render :renderer 'io.github.223kazuki.core/render)
+        (collection :renderer 'io.github.223kazuki.index/render :page &quot;index.html&quot;)
+        ;; (tags :renderer 'io.github.223kazuki.index.tags/render)
+        ;; (paginate :renderer 'io.github.223kazuki.index.paginate/render)
+        ;; (assortment :renderer 'io.github.223kazuki.index.assortment/render
+        ;;             :grouper (fn [entries]
+        ;;                        (-&gt;&gt; entries
+        ;;                             (mapcat (fn [entry]
+        ;;                                       (if-let [kws (:keywords entry)]
+        ;;                                         (map #(-&gt; [% entry]) (str/split kws #&quot;\s*,\s*&quot;))
+        ;;                                         [])))
+        ;;                             (reduce (fn [result [kw entry]]
+        ;;                                       (let [path (str kw &quot;.html&quot;)]
+        ;;                                         (-&gt; result
+        ;;                                             (update-in [path :entries] conj entry)
+        ;;                                             (assoc-in [path :entry :keyword] kw))))
+        ;;                                     {}))))
+        (static :renderer 'io.github.223kazuki.about/render :page &quot;about.html&quot;)
+        ;; (inject-scripts :scripts #{&quot;start.js&quot;})
+        (sitemap :out-dir &quot;./&quot;)
+        (rss :description &quot;Hashobject blog&quot; :out-dir &quot;./&quot;)
+        ;; (atom-feed :filterer :original :out-dir &quot;./&quot;)
+        (print-meta)
+        (target :dir #{&quot;../223kazuki.github.io&quot;})
+        (notify)))
+
+(deftask dev
+  []
+  (comp (watch)
+        (build)
+        (serve)))
+</code></pre>
+</div></html>

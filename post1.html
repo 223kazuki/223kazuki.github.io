@@ -10,10 +10,6 @@
 <img width="300" alt="Reconciler.png" src="https://qiita-image-store.s3.amazonaws.com/0/109888/c223eac8-1453-20c7-f88b-3e6d268e9866.png">
 <p>図のように Om Next の各構成要素 ( React Component, アプリケーション状態、リモートサーバ ) のやり取りを仲介し、状態管理をよきに計らってくれます。Om Next では UI ( React Component ) と状態が明確に分離されており、 UI から状態を参照・更新する場合は Reconciler に定義した処理 (parser) を呼び出すことになります。また、 Reconciler は特定の状態参照・更新をリモートサーバにディスパッチして結果をアプリケーション状態に反映することも行ってくれます。</p>
 <p>下記が Reconciler の定義の例（今回作成したアプリのもの）です。</p>
-<pre><code class="language-css">.test {
-  width: 100px;
-}
-</code></pre>
 <pre><code class="language-clojure">(defonce reconciler
   (om/reconciler
     {:state  app-state
@@ -59,12 +55,12 @@
 <p><a href="https://github.com/223kazuki/om-next-remoting-example">https://github.com/223kazuki/om-next-remoting-example</a></p>
 <h3><a href="#32-起動方法" id="32-起動方法"></a>3.2. 起動方法</h3>
 <p>jdk 8, leiningen がインストール済みの想定で、下記コマンドを打ってください。</p>
-<pre><code class="language-sh">git clone https://github.com/223kazuki/om-next-remoting-example
+<pre><code class="language-bash">git clone https://github.com/223kazuki/om-next-remoting-example
 cd om-next-remoting-example
 lein repl
 </code></pre>
 <p>repl 起動後に下記の通り dev, go 関数を実行することでClojureScriptがコンパイルされ、サーバが起動します。またサーバ側ではインメモリで Datomic が起動します。</p>
-<pre><code class="language-sh:repl">user=&gt; (dev)
+<pre><code class="language-clojure-repl">user=&gt; (dev)
 :loaded
 dev=&gt; (go)
 ...
@@ -79,7 +75,7 @@ Successfully compiled &quot;target/figwheel/public/js/main.js&quot; in 21.564 se
 <h4><a href="#331-ui-と状態の分離" id="331-ui-と状態の分離"></a>3.3.1. UI と状態の分離</h4>
 <p>Om で問題だったのは UI ( React Component ) と状態が分離し切れなかったことです。その結果、状態や channel の持ち回しが発生して管理し切れなくなりがちでした。</p>
 <p>Om Next では UI と状態が明確に分離できます。下記が今回のサンプルにおける UI の定義です。</p>
-<pre><code class="language-cljs:src/remoting/example/client/view.cljs">(defui ^:once ListProduct
+<pre><code class="language-clojure:src/remoting/example/client/view.cljs">(defui ^:once ListProduct
   static om/Ident
   (ident [this {:keys [product/number]}]
          [:product/by-number number]) ;; 描画データの正規化の定義
@@ -101,7 +97,7 @@ Successfully compiled &quot;target/figwheel/public/js/main.js&quot; in 21.564 se
 <p>まず、 query 関数の返り値として UI が表示に必要なデータを取得するクエリが定義されています。 このクエリは Reconciler 経由で parser へ渡されてフェッチされ、 <code>(om/props this)</code> から表示データを取得できます。受け渡されている <code>this</code> は単に Component 自身です。状態を更新する処理は <code>(om/transact! this `[(cart/add-product ~props) :products/cart])</code> として呼び出しており、同じく Reconciler 経由の parser 呼び出しとなります。 このように、 Reconciler が状態へのアクセスを全て仲介することで UI と状態の分離が実現出来ます。</p>
 <h4><a href="#332-リモートサーバとアプリケーション状態の連携" id="332-リモートサーバとアプリケーション状態の連携"></a>3.3.2. リモートサーバとアプリケーション状態の連携</h4>
 <p>SPA を構築する上で最も煩雑なのはリモートサーバから取得した値とアプリケーション状態の連携だと私は思います。Om Next ではこの問題も Reconciler が解決してくれます。 商品一覧を取得する処理を見てください。今回、商品一覧取得は <code>:products/list</code> というクエリに割り当てています。 まずは下記が ClojureScript 側の parser 定義です。</p>
-<pre><code class="language-cljs:src/remoting/example/client/parser.cljs">(defmulti read om/dispatch)
+<pre><code class="language-clojure:src/remoting/example/client/parser.cljs">(defmulti read om/dispatch)
 (defmethod read :products/list              ;; key が :products/list の時に呼び出される
   [{:keys [state ast] :as env} key params]  ;; 第一引数として呼び出し時のコンテキストが渡され、 state もここから取得できる
   (let [st @state]
@@ -111,7 +107,7 @@ Successfully compiled &quot;target/figwheel/public/js/main.js&quot; in 21.564 se
 </code></pre>
 <p>上記でクライアント側の状態中に欲しいデータがなかった場合、 <code>:remote</code> というキーを返すことで Reconciler にリモートサーバへ問い合わせるよう通知します。Reconciler はリモート問い合わせ定義( Reconciler 定義時に<code>:send</code>キーで指定 )を基に、同じクエリをリモートサーバへ投げます。</p>
 <p>リモートサーバ側でも同様のクエリに対して parser を用意しておき、DB (Datomic) からデータを取得してレスポンスを返します。</p>
-<pre><code class="language-src/remoting/example/component/parser.clj">(defmulti read om/dispatch)
+<pre><code class="language-clojure:src/remoting/example/component/parser.clj">(defmulti read om/dispatch)
 (defmethod read :products/list
   [{:keys [datomic] :as env} k _]
   (let [v (d/query datomic
@@ -129,7 +125,7 @@ Successfully compiled &quot;target/figwheel/public/js/main.js&quot; in 21.564 se
 <pre><code>[7901.524s] [om.next] [:product/by-number 13] transacted '[(cart/add-product {:db/id 17592186045431, :product/number 13, :product/name &quot;plum&quot;, :product/price 860}) :products/cart {:products/cart [:product/number :product/name :product/price :product/in-cart]}], #uuid &quot;bb592271-bf8a-49f6-a2b8-7c4f3cf14a6b&quot;
 </code></pre>
 <p>これは Reconciler が出力する状態の更新のログで、各更新時点に対して UUID (行末) が発行されます。この UUID を記録し、その後にも何か操作を加えた後、repl で下記の操作を行ってください。</p>
-<pre><code class="language-sh:repl">dev=&gt; (cljs-repl) ;; cljs replに入る
+<pre><code class="language-clojure-repl">dev=&gt; (cljs-repl) ;; cljs replに入る
 To quit, type: :cljs/quit
 nil
 cljs.user=&gt; (in-ns 'remoting.example.client.core) ;; reconciler が存在する名前空間へ移動
@@ -137,13 +133,13 @@ nil
 remoting.example.client.core=&gt; (om/from-history reconciler #uuid &quot;bb592271-bf8a-49f6-a2b8-7c4f3cf14a6b&quot;) ;; 記録した時点での状態の取得
 </code></pre>
 <p>上記で記録時点のアプリケーション状態が repl に出力されます。あとはアプリケーション状態をこの時点のものに設定しなおせば、 UI も過去時点に再描画することができます。</p>
-<pre><code class="language-sh:repl">remoting.example.client.core=&gt; (reset! app-state (om/from-history reconciler #uuid &quot;bb592271-bf8a-49f6-a2b8-7c4f3cf14a6b&quot;))
+<pre><code class="language-clojure-repl">remoting.example.client.core=&gt; (reset! app-state (om/from-history reconciler #uuid &quot;bb592271-bf8a-49f6-a2b8-7c4f3cf14a6b&quot;))
 </code></pre>
 <p>Reconciler はデフォルトで 100 件の履歴を保持するようです。</p>
 <h4><a href="#342-figwheel-との相性" id="342-figwheel-との相性"></a>3.4.2. Figwheel との相性</h4>
 <p>Figwheel は ClojureScript のコンパイルとブラウザへのホットリロードを行う Leiningen Plugin です。Websoket でブラウザと接続してコンパイルした js をプッシュすることで変更を反映することができます。Duct はこの Figwheel を Component として提供しており、 repl から操作することが可能になっています。</p>
 <p>cljs ファイルに何か変更を加え（保存するだけでもよい）repl から reset 関数を実行してください。</p>
-<pre><code class="language-sh:repl">dev=&gt; (reset)
+<pre><code class="language-clojure-repl">dev=&gt; (reset)
 :reloading ()
 Compiling &quot;target/figwheel/public/js/main.js&quot; from [&quot;src&quot; &quot;dev&quot;]...
 Compiling src\remoting\example\client\view.cljs
@@ -156,7 +152,7 @@ notifying browser that file changed:  out\remoting\example\client\view.js
 </code></pre>
 <p>cljs ファイルがビルドされ、ブラウザに通知されています。UI を定義している view.cljs に変更を加えたのであれば、その変更がブラウザに反映されていることが確認できるはずです。</p>
 <p>これだけでも十分生産性向上が望めますが、 Om Next と組み合わせた場合、もう一歩先に進むことが出来ます。今回のアプリケーションのエントリーポイントとなる core.cljs を見て下さい。</p>
-<pre><code class="language-cljs:src/remoting/example/client/core.cljs">(defonce app-state (atom {}))
+<pre><code class="language-clojure:src/remoting/example/client/core.cljs">(defonce app-state (atom {}))
 
 (defonce reconciler
   (om/reconciler
@@ -205,5 +201,5 @@ notifying browser that file changed:  out\remoting\example\client\view.js
 <li><a href="https://medium.com/@kovasb/om-next-the-reconciler-af26f02a6fb4#.yli2wy6bz">Om/Next: The Reconciler</a></li>
 <li><a href="https://anmonteiro.com/2016/01/writing-om-next-reloadable-code-a-checklist/">Writing Om Next Reloadable Code</a></li>
 </ul>
-</article></div></div></div><footer class="col-12"><ul class="center list-reset"><li class="inline-block mr1"><a href="/about.html">About</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/feed.rss">RSS</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/posts.html">Posts</a></li></ul></footer><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure-repl.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure.min.js"></script><script>hljs.initHighlightingOnLoad();</script><script>console.log('Hello world');
+</article></div></div></div><footer class="col-12"><ul class="center list-reset"><li class="inline-block mr1"><a href="/about.html">About</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/feed.rss">RSS</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/posts.html">Posts</a></li></ul></footer><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure-repl.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure-repl.min.js"></script><script>hljs.initHighlightingOnLoad();</script><script>console.log('Hello world');
 </script></body></html>

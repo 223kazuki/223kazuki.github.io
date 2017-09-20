@@ -6,7 +6,7 @@
 223Log
 </title>
 <description>
-Hashobject blog
+223 log
 </description>
 <link>
 https://223kazuki.github.io/
@@ -16,13 +16,33 @@ clj-rss
 </generator>
 <item>
 <link>
-https://223kazuki.github.io/post1.html
+https://223kazuki.github.io/start-blog.html
 </link>
 <guid>
-https://223kazuki.github.io/post1.html
+https://223kazuki.github.io/start-blog.html
 </guid>
 <pubDate>
-Sun, 10 Sep 2017 17:00:00 -0700
+Mon, 18 Sep 2017 17:00:00 -0700
+</pubDate>
+<title>
+ブログ始めました
+</title>
+<description>
+ブログ始めました
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/reconsider-om-next.html
+</link>
+<guid>
+https://223kazuki.github.io/reconsider-om-next.html
+</guid>
+<pubDate>
+Wed, 21 Dec 2016 16:00:00 -0800
 </pubDate>
 <title>
 Om Next 振り返り

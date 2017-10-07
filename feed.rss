@@ -16,26 +16,6 @@ clj-rss
 </generator>
 <item>
 <link>
-https://223kazuki.github.io/start-blog.html
-</link>
-<guid>
-https://223kazuki.github.io/start-blog.html
-</guid>
-<pubDate>
-Mon, 18 Sep 2017 17:00:00 -0700
-</pubDate>
-<title>
-ブログ始めました
-</title>
-<description>
-ブログ始めました
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
 https://223kazuki.github.io/reconsider-om-next.html
 </link>
 <guid>
@@ -49,6 +29,46 @@ Om Next 振り返り
 </title>
 <description>
 Om Next 振り返り
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/emacs-on-bash-on-windows.html
+</link>
+<guid>
+https://223kazuki.github.io/emacs-on-bash-on-windows.html
+</guid>
+<pubDate>
+Thu, 05 Oct 2017 17:00:00 -0700
+</pubDate>
+<title>
+Emacs on Bash on Windows と Windows でクリップボード共有
+</title>
+<description>
+Emacs on Bash on Windows と Windows でクリップボード共有
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/start-blog.html
+</link>
+<guid>
+https://223kazuki.github.io/start-blog.html
+</guid>
+<pubDate>
+Mon, 18 Sep 2017 17:00:00 -0700
+</pubDate>
+<title>
+ブログ始めました
+</title>
+<description>
+ブログ始めました
 </description>
 <author>
 rixi223.kazuki@gmail.com

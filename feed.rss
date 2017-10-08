@@ -16,26 +16,6 @@ clj-rss
 </generator>
 <item>
 <link>
-https://223kazuki.github.io/reconsider-om-next.html
-</link>
-<guid>
-https://223kazuki.github.io/reconsider-om-next.html
-</guid>
-<pubDate>
-Wed, 21 Dec 2016 16:00:00 -0800
-</pubDate>
-<title>
-Om Next 振り返り
-</title>
-<description>
-Om Next 振り返り
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
 https://223kazuki.github.io/emacs-on-bash-on-windows.html
 </link>
 <guid>
@@ -49,6 +29,26 @@ Emacs on Bash on Windows と Windows でクリップボード共有
 </title>
 <description>
 Emacs on Bash on Windows と Windows でクリップボード共有
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/reconsider-om-next.html
+</link>
+<guid>
+https://223kazuki.github.io/reconsider-om-next.html
+</guid>
+<pubDate>
+Wed, 21 Dec 2016 16:00:00 -0800
+</pubDate>
+<title>
+Om Next 振り返り
+</title>
+<description>
+Om Next 振り返り
 </description>
 <author>
 rixi223.kazuki@gmail.com

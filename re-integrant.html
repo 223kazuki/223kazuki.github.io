@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html itemtype="http://schema.org/Blog" lang="en"><head><title>223Log</title><meta charset="utf-8"><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"><link href="/css/normalize.css" rel="stylesheet"><link href="//unpkg.com/basscss@8.0.2/css/basscss.min.css" rel="stylesheet"><link href="//cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css" rel="stylesheet"><link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet"><link href="/css/app.css" rel="stylesheet"></head><body><header class="fixed top-0 fit col-12"><p class="center"><a href="/">223 Log</a></p></header><div class="content mx-auto mt3 pt2"><div class="clearfix"><div class="post"><h1>How to modularize ClojureScript SPA</h1><div class="fit clearfix"><time class="left">09/10/2018</time><a class="ml1 tag right" href="/tags/Ethereum.html">Ethereum</a><a class="ml1 tag right" href="/tags/integrant.html">integrant</a><a class="ml1 tag right" href="/tags/re-frame.html">re-frame</a><a class="ml1 tag right" href="/tags/SPA.html">SPA</a><a class="ml1 tag right" href="/tags/ClojureScript.html">ClojureScript</a></div><hr class="mb2"><article class="markdown-body mb2"><p>In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.</p>
+<p><a href="https://github.com/223kazuki/cljs-dapp">https://github.com/223kazuki/cljs-dapp</a></p>
+<h3><a href="#background" id="background"></a>Background</h3>
+<p>As I'm interested in Blockchain technology recently, I've developed Ethereum DApp by using ClojureScript + <a href="https://github.com/Day8/re-frame">re-frame</a>. In the frontend development, I had a lot of difficulty that comes from complexity of Ethereum eco system.</p>
+<ul>
+<li>There are a lot of libraries(npm modules) to use.
+<ul>
+<li><a href="https://github.com/ethereum/web3.js/">web3.js</a>, <a href="https://github.com/ipfs/js-ipfs-api">ipfs-api</a>, <a href="https://github.com/uport-project/uport-connect">uport-connect</a>...</li>
+</ul>
+</li>
+<li>Each of them has initialization parameters and needs to change according to environments.</li>
+<li>The state associated with them can change.</li>
+<li>There are also dependencies among them.
+<ul>
+<li>For example, it is necessary to reinitialize web3 instance when connecting to uPort.</li>
+</ul>
+</li>
+</ul>
+<p>Though the smart contract that is the essential part of DApp was not so complex, I was about to lose it for sometimes during the frontend development. In order to solve these problems, I wanted a platform like bellow.</p>
+<ul>
+<li>It can split an application into modules.</li>
+<li>It can manage the states of its modules.</li>
+<li>It can define the lifecycle of each modules.</li>
+<li>It can define initialization parameters and dependencies of modules declaratively.</li>
+</ul>
+<p>I think <a href="https://github.com/weavejester/integrant">integrant</a>, Clojure/Script lifecycle framework is exactly what I want. By using it in ClojureScript development, we can deal with the lifecycle of SPA and make it reloadable. But in this case, I want to use re-frame at the same time. So I had to consider about how to reconcile between the integrant modules, the app state managed in re-frame and its handlers.</p>
+<p>In the real development, I tried but I couldn't make it. But after then, I found an article about the pattern to use re-frame as well as <a href="https://github.com/tolitius/mount">mount</a> by <a href="https://district0x.io/">district0x</a> who developed <a href="https://github.com/district0x/cljs-web3">cljs-web3</a>. mount is also a lifecycle management framework in Clojure/Script as with integrant.</p>
+<p>This pattern was named <a href="https://github.com/district0x/d0x-INFRA/blob/master/re-mount.md">re-mount</a>.</p>
+<p>This is what I wanted!</p>
+<p>Although it was enough to use the pattern just as it is, I felt mount is less &quot;declarative&quot; than integrant. So I tried to import this pattern in integrant.</p>
+<h2><a href="#sample-project" id="sample-project"></a>Sample project</h2>
+<p>The bellow is what I developed as a sample project.</p>
+<p><a href="https://github.com/223kazuki/cljs-dapp">https://github.com/223kazuki/cljs-dapp</a></p>
+<p>You also need a development environment for Ethereum smart contract to run it. Please set up according to README.</p>
+<h3><a href="#project-structure" id="project-structure"></a>Project Structure</h3>
+<p>As I made this project mixed with <a href="https://truffleframework.com/">Truffle</a> project, it is difficult to understand it as a ClojureScript project. The bellow are the files just related to ClojureScript.</p>
+<pre><code class="language-bash">.
+├── project.clj
+├── resources
+│   ├── config.edn
+│   └── public
+│       ├── css
+│       │   └── site.css
+│       └── index.html
+└── src
+    └── cljs_dapp
+        ├── core.cljs
+        ├── module
+        │   ├── app.cljs
+        │   ├── router.cljs
+        │   └── web3.cljs
+        ├── utils.cljc
+        └── views.cljs
+</code></pre>
+<h4><a href="#configedn" id="configedn"></a>config.edn</h4>
+<p>I defined initialization parameters for each modules in config.edn.</p>
+<pre><code class="language-clojure:config.edn">{:cljs-dapp.module/router
+ [&quot;/&quot; {&quot;&quot;       :home
+       &quot;about&quot;  :about}]
+
+ :cljs-dapp.module/web3
+ {:network-id 1533140371286
+  :contract #json &quot;build/contracts/Simplestorage.json&quot;}
+
+ :cljs-dapp.module/app
+ {:mount-point-id &quot;app&quot;
+  :routes #ig/ref :cljs-dapp.module/router
+  :web3 #ig/ref :cljs-dapp.module/web3}}
+</code></pre>
+<p>In this case, I split SPA to three modules.</p>
+<ul>
+<li><code>:cljs-dapp.module/app</code> ... React.js(reagent) app module</li>
+<li><code>:cljs-dapp.module/router</code> ... Router module using Html5History</li>
+<li><code>:cljs-dapp.module/web3</code> ... Web3 module</li>
+</ul>
+<p>As I want to initialize app module at last, it depends on router and web3 modules. If there are dependencies, integrant manage the initialization order automatically.</p>
+<p>I wonder you notice why it can read EDN file although ClojureScript can't slurp resources. I will explain how to implement it.</p>
+<h4><a href="#module" id="module"></a>Module</h4>
+<p>Next, the main point of this pattern, the implementation of module.</p>
+<pre><code class="language-clojure:router.cljs">;; In order to make it reloadable, the module registers re-frame handlers when it initializes.
+;; reg-subs, reg-event-fxs are the original utility to register multiple handlers.
+(defn- load-subs []
+  (reg-subs
+   {::active-panel
+    (fn [db]
+      (::active-panel db))}))
+
+(defn- load-events []
+  (reg-event-fxs
+   {::init ;; A re-frame handler to initialize app-db for this module.
+    (fn-traced [{:keys [:db]} _]
+               {:db
+                (assoc db ::active-panel :none)})
+
+    ::halt ;; A re-frame handler to finalize app-db for this module.
+    (fn-traced [{:keys [:db]} _]
+               ;; Remove values which related to this module from app-db.
+               {:db (clear-re-frame-db db (namespace ::module))})
+
+    ::set-active-panel
+    (fn-traced [{:keys [:db]} [panel-name]]
+               {:db
+                (assoc db ::active-panel panel-name)})}))
+
+;; ...
+
+;; Initialize module.
+(defmethod ig/init-key :cljs-dapp.module/router
+  [_ routes] ;; Initialization parameter defined in config.edn.
+  (js/console.log (str &quot;Initializing &quot; (pr-str ::module)))
+  ;; Load handlers of re-frame events and subscriptions.
+  (load-subs)
+  (load-events)
+  ;; Dispatch initialization handler for app-db synchronously.
+  (re-frame/dispatch-sync [::init])
+  ;; Initialize Html5History. Then return record.
+  (app-routes routes))
+
+;; Stop module.
+(defmethod ig/halt-key! :cljs-dapp.module/router
+  [_ {:keys [history]}]
+  (js/console.log (str &quot;Halting &quot; (pr-str ::module)))
+  ;; Dispatch halt handler for app-db synchronously.
+  (re-frame/dispatch-sync [::halt])
+  ;; Remove re-frame handlers related to this module.
+  (clear-re-frame-handlers (namespace ::module))
+  ;; Stop Html5History.
+  (pushy/stop! history))
+</code></pre>
+<p>Each of modules has values on re-frame app-db and handlers that watch and update them. In order to keep it reloadable, the module wrap handler registration in a methond and exucute it during initialization.</p>
+<p>After that, initialization method call <code>::init</code> event handler synchronously to initial values on re-frame db. The router module has <code>::active-panel</code> as an initial value.</p>
+<p>As all of values on re-frame db and handlers were registered with namespaced keywords, they are bound to modules loosely.</p>
+<ul>
+<li>DB
+<ul>
+<li><code>:cljs-dapp.module.router/active-panel</code> = <code>:none</code></li>
+</ul>
+</li>
+<li>Subscription handler
+<ul>
+<li><code>:cljs-dapp.module.router/active-panel</code></li>
+</ul>
+</li>
+<li>Event handler
+<ul>
+<li><code>:cljs-dapp.module.router/init</code></li>
+<li><code>:cljs-dapp.module.router/halt</code></li>
+<li><code>:cljs-dapp.module.router/set-active-panel</code></li>
+</ul>
+</li>
+</ul>
+<p>At the end of the initialization, the module initializes Html5History API and return its instance. I use <a href="https://github.com/kibu-australia/pushy">pushy</a> to manage the lifecycle of Html5History instance.</p>
+<p>When it stops, it remove the value from re-frame app-db by calling <code>::halt</code> handler, delete handlers and terminate Html5History. As the instance (technically it's a cljs record) is passed by integrant, it's easy to deal with it.</p>
+<h5><a href="#specification-with-that-module-should-comply" id="specification-with-that-module-should-comply"></a>Specification with that module should comply</h5>
+<p>As like re-mount mentions, this pattern is not so strict. So when you implement a new module, you have to check if it complies with specification. A module should comply with the bellow specifications.</p>
+<ul>
+<li>Initialization
+<ul>
+<li>Register re-frame handlers only associated with the module itself.</li>
+<li>Register (assoc) values on re-frame db by calling <code>::init</code> handler synchronously if it needs state.</li>
+<li>Initialize instances and listeners and return them.</li>
+<li>Values on app-db and handlers should be registered with keywords namespaced with the module's namespace.</li>
+</ul>
+</li>
+<li>Termination
+<ul>
+<li>Remove (dissoc) values on re-frame db by calling <code>::halt</code> handler synchronously if it has state.</li>
+<li>Remove re-frame handlers only associated with the module itself.</li>
+<li>Stop instances and listeners.</li>
+</ul>
+</li>
+</ul>
+<h4><a href="#viewscljs" id="viewscljs"></a>views.cljs</h4>
+<p>App module mounts views.cljs when it's initialized. Because re-frame handlers are registered with keywords namespaced by each modules, we can resolve them by their namespace alias.</p>
+<pre><code class="language-clojure:views.cljs">(require '[soda-ash.core :as sa]
+         '[cljs-dapp.module.router :as router]
+         '[cljs-dapp.module.web3 :as web3])
+
+;; ::web3/my-address -&gt; :cljs-dapp.module.web3/my-address
+
+(defn home-panel []
+  (let [my-address (re-frame/subscribe [::web3/my-address]) ;; subscription handler
+        data (re-frame/subscribe [::web3/data])] ;; Resolve with alias.
+    (reagent/create-class
+     {:component-will-mount
+      #(re-frame/dispatch [::web3/get-data]) ;; event handler
+
+      :reagent-render
+      (fn []
+        [:div
+         [sa/Segment
+          [sa/Table {:celled true}
+           [sa/TableBody
+            [sa/TableRow
+             [sa/TableCell {:style {:width &quot;200px&quot; :background-color &quot;#F9FAFB&quot;}}
+              &quot;Your address&quot;]
+             [sa/TableCell @my-address]]
+            [sa/TableRow
+             [sa/TableCell {:style {:background-color &quot;#F9FAFB&quot;}} &quot;Stored data&quot;]
+             [sa/TableCell @data]]]]
+          [sa/Divider {:hidden true}]
+          (when @data
+            [data-form {:configs {:initial-data @data}
+                        :handlers {:update-handler
+                                   #(re-frame/dispatch [::web3/set-data %])}}])]])})))
+</code></pre>
+<p>By the way, I use <a href="https://react.semantic-ui.com/">Semantic UI React</a> and <a href="https://github.com/gadfly361/soda-ash">soda-ash</a> that is a cljs wrapper library of it here.</p>
+<h4><a href="#corecljs" id="corecljs"></a>core.cljs</h4>
+<p>Last but not least, core.cljs. It's very similar to the usage in server side. The entry point is <code>init</code>. And Figwheel's on-jsload calls <code>reset</code>.</p>
+<pre><code class="language-clojure:core.cljs">(defonce system (atom nil))
+
+(defn start []
+  (reset! system (ig/init (read-config &quot;resources/config.edn&quot;))))
+
+(defn stop []
+  (ig/halt! @system)
+  (reset! system nil))
+
+(defn reset []
+  (stop)
+  (start))
+
+(defn ^:export init []
+  (dev-setup)
+  (start))
+</code></pre>
+<p>In <code>start</code> method, it reads config.edn. Why can it <code>read-config</code> although cljs can't use <code>slurp</code>?</p>
+<p>The answer is that this read-config is not the function provided by integrant but a clojure macro.</p>
+<pre><code class="language-clojure:utils.cljc">(defmacro read-config [file]
+  #?(:clj (ig/read-string
+           {:readers {'json #(-&gt; %
+                                 slurp
+                                 (json/read-str :key-fn keyword))}}
+           (slurp file))))
+</code></pre>
+<p>ClojureScript is just an AltJS. But it can execute Clojure macro on JVM during build.</p>
+<p>By using macro, the compiler reads <code>resources/config.edn</code> and expands it in start method. It's like a magic! This is possible because ClojureScript is a Clojure subset.</p>
+<p>Honestly, it's not necessary to use this way. It's enough to define config in code. But there is also an integrand reader function <code>#json</code> that uses same way to read json file.</p>
+<p>It reads a definition file of smart contract, <code>SimpleStorage.json</code> and convert it to Clojure data. As this kind of file varies with the compile, it's loaded via Ajax usually. But this file is very big. As it almost has MB size, it's desirable to write them in code.</p>
+<h3><a href="#development" id="development"></a>Development</h3>
+<p>Then what is like the development using this pattern? You can start Figwheel server by typing the following command.</p>
+<pre><code class="language-sh">% lein dev
+Figwheel: Cutting some fruit, just a sec ...
+Figwheel: Validating the configuration found in project.clj
+Figwheel: Configuration Valid ;)
+Figwheel: Starting server at http://0.0.0.0:3449
+Figwheel: Watching build - dev
+Figwheel: Cleaning build - dev
+Compiling build :dev to &quot;resources/public/js/compiled/app.js&quot; from [&quot;src&quot;]...
+Successfully compiled build :dev to &quot;resources/public/js/compiled/app.js&quot; in 38.744 seconds.
+Figwheel: Starting CSS Watcher for paths  [&quot;resources/public/css&quot;]
+Launching ClojureScript REPL for build: dev
+Figwheel Controls:
+          (stop-autobuild)                ;; stops Figwheel autobuilder
+          (start-autobuild id ...)        ;; starts autobuilder focused on optional ids
+          (switch-to-build id ...)        ;; switches autobuilder to different build
+          (reset-autobuild)               ;; stops, cleans, and starts autobuilder
+          (reload-config)                 ;; reloads build config and resets autobuild
+          (build-once id ...)             ;; builds source one time
+          (clean-builds id ..)            ;; deletes compiled cljs target files
+          (print-config id ...)           ;; prints out build configurations
+          (fig-status)                    ;; displays current state of system
+          (figwheel.client/set-autoload false)    ;; will turn autoloading off
+          (figwheel.client/set-repl-pprint false) ;; will turn pretty printing off
+  Switch REPL build focus:
+          :cljs/quit                      ;; allows you to switch REPL to another build
+    Docs: (doc function-name-here)
+    Exit: :cljs/quit
+ Results: Stored in vars *1, *2, *3, *e holds last exception object
+Prompt will show when Figwheel connects to your application
+[Rebel readline] Type :repl/help for online help info
+ClojureScript 1.10.339
+dev:cljs.user=&gt;
+</code></pre>
+<p>When you save the code, Figwheel detect that and build it. Then the compiled code is pushed to the browser and <code>reset</code> function will be executed.</p>
+<p>Even if you don't use this pattern, you can reflect the change of view by re-frame. But you usually fail to refresh listeners or instances and finally reload the browser.</p>
+<p>By using this pattern, you can properly reload the modules and develop SPA smoothly.</p>
+<p>When you need to change configs, all you have to do is to edit config.edn and let Figwheel build. Then the change will reflect to the browser automatically.</p>
+<p>Furthermore, the module developed by this pattern is totally modulable. district0x develop some modules as libraries by using <code>re-mount</code> pattern. For example they publish GraphQL client module.</p>
+<p><a href="https://github.com/district0x/district-ui-graphql">https://github.com/district0x/district-ui-graphql</a></p>
+<p>Even if you don't develop library, you can develop loosely-coupled and reusable code.</p>
+<h2><a href="#summary" id="summary"></a>Summary</h2>
+<p>Taking the pattern I introduced in this article allows you to split SPA into modules each of that has original state and lifecycle. That solves problems related to DApp development as stated bellow.</p>
+<ul>
+<li>There are a lot of libraries(npm modules) to use.
+<ul>
+<li>▶ You can manage them by modularizing.</li>
+</ul>
+</li>
+<li>Each of them has initialization parameters and needs to change according to environments.
+<ul>
+<li>▶ You can easily manage them by defining them in config.edn declaratively.</li>
+</ul>
+</li>
+<li>The state associated with them can change.
+<ul>
+<li>▶ You can relate them to their modules by re-frame.</li>
+</ul>
+</li>
+<li>There are also dependencies among them.
+<ul>
+<li>▶ You can define them as dependencies of modules.</li>
+</ul>
+</li>
+</ul>
+<p>On the other hand, the problems of this pattern are as follows.</p>
+<ul>
+<li>You have to check if each modules complies with specification when you implement it.</li>
+<li>The code which initialize and finalize module is complicated.</li>
+<li>As integrant initializes application synchronously, it blocks rendering page until the end of initialization.</li>
+</ul>
+<p>In spite of these problems, this pattern is very effective for development of complicated SPA. So you may apply it to develop SPA like DApp.</p>
+</article></div></div></div><footer class="col-12"><ul class="center list-reset"><li class="inline-block mr1"><a href="/about.html">About</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/feed.rss">RSS</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/">Posts</a></li></ul></footer><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure-repl.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure-repl.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/lisp.min.js"></script><script>hljs.initHighlightingOnLoad();</script><script>console.log('Hello world');
+</script></body></html>

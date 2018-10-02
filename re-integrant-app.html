@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html itemtype="http://schema.org/Blog" lang="en"><head><title>223Log</title><meta charset="utf-8"><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"><link href="/css/normalize.css" rel="stylesheet"><link href="//unpkg.com/basscss@8.0.2/css/basscss.min.css" rel="stylesheet"><link href="//cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css" rel="stylesheet"><link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet"><link href="/css/app.css" rel="stylesheet"></head><body><header class="fixed top-0 fit col-12"><p class="center"><a href="/">223 Log</a></p></header><div class="content mx-auto mt3 pt2"><div class="clearfix"><div class="post"><h1>Develop ClojureScript SPA with combination of integrant and re-frame</h1><div class="fit clearfix"><time class="left">10/01/2018</time><a class="ml1 tag right" href="/tags/integrant.html">integrant</a><a class="ml1 tag right" href="/tags/re-frame.html">re-frame</a><a class="ml1 tag right" href="/tags/SPA.html">SPA</a><a class="ml1 tag right" href="/tags/ClojureScript.html">ClojureScript</a></div><hr class="mb2"><article class="markdown-body mb2"><p>In this post, I'll introduce how to develop ClojureScript Single Page Application by using the combination of integrant and re-frame.</p>
+<p>I also introduced that in <a href="https://223kazuki.github.io/re-integrant.html">the previous post</a>. But as the previous example was special case, Ethereum DApp, it was a little complex to understand. So I develop an example again in pure cljs.</p>
+<p><a href="https://github.com/223kazuki/re-integrant-app">https://github.com/223kazuki/re-integrant-app</a></p>
+<p>I tentatively call this pattern &quot;re-integrant&quot;.</p>
+<h2><a href="#overview" id="overview"></a>Overview</h2>
+<p>The SPA developed in this application pattern consists of three layers.</p>
+<ol>
+<li>Integrant layer that manages the whole lifecycle of the application.</li>
+<li>Re-frame layer that manages app-db that is updated by user interaction.</li>
+<li>Reagent layer represents view that subscribes and dispatches app-db via re-frame handlers.</li>
+</ol>
+<p>And the application is divided into modules by integrant. Re-frame handlers are registered in each modules' namespaces when the modules initialize.</p>
+<p><img src="https://qiita-image-store.s3.amazonaws.com/0/109888/0af426ba-2ab9-5fe5-1fda-22e0f136fcfe.png" alt="re-integrant.png" /></p>
+<h3><a href="#project-structure" id="project-structure"></a>Project Structure</h3>
+<p>I adopted the similar structure to the server side integrant application like duct template. And I created dev directory to manage development settings.</p>
+<pre><code class="language-bash">.
+├── project.clj
+├── dev
+│   ├── resources
+│   │   └── dev.edn
+│   └── src
+│       └── user.cljs
+├── resources
+│   ├── config.edn
+│   └── public
+│       ├── css
+│       │   └── site.css
+│       └── index.html
+└── src
+    └── re_integrant_app
+        ├── core.cljs
+        ├── module
+        │   ├── app.cljs
+        │   ├── moment.cljs
+        │   └── router.cljs
+        ├── utils.cljc
+        └── views.cljs
+</code></pre>
+<h3><a href="#projectclj" id="projectclj"></a>project.clj</h3>
+<p>The versions of primary libraries are bellow.</p>
+<pre><code class="language-clojure">[org.clojure/clojure &quot;1.9.0&quot;]
+[org.clojure/clojurescript &quot;1.10.339&quot;]
+[reagent &quot;0.8.0&quot;]
+[re-frame &quot;0.10.5&quot;]
+[integrant &quot;0.7.0&quot;]
+</code></pre>
+<p>The build settings of ClojureScript in each profiles are bellow. Figwheel executes <code>cljs.user/reset</code> on jsload during development.</p>
+<pre><code class="language-clojure">  :cljsbuild
+  {:builds
+   [{:id &quot;dev&quot;
+     :source-paths [&quot;src&quot; &quot;dev/src&quot;]
+     :figwheel     {:on-jsload            cljs.user/reset}
+     :compiler     {:main                 cljs.user
+                    :output-to            &quot;resources/public/js/compiled/app.js&quot;
+                    :output-dir           &quot;resources/public/js/compiled/out&quot;
+                    :asset-path           &quot;js/compiled/out&quot;
+                    :source-map-timestamp true
+                    :preloads             [devtools.preload
+                                           day8.re-frame-10x.preload]
+                    :closure-defines      {&quot;re_frame.trace.trace_enabled_QMARK_&quot; true
+                                           &quot;day8.re_frame.tracing.trace_enabled_QMARK_&quot; true}
+                    :external-config      {:devtools/config {:features-to-install :all}}}}
+    {:id &quot;min&quot;
+     :source-paths [&quot;src&quot;]
+     :compiler     {:main            re-integrant-app.core
+                    :output-to       &quot;resources/public/js/compiled/app.js&quot;
+                    :optimizations   :advanced
+                    :closure-defines {goog.DEBUG false}
+                    :pretty-print    false}}
+    {:id &quot;test&quot;
+     :source-paths [&quot;src&quot; &quot;test&quot;]
+     :compiler     {:main          re-integrant-app.runner
+                    :output-to     &quot;resources/public/js/compiled/test.js&quot;
+                    :output-dir    &quot;resources/public/js/compiled/test/out&quot;
+                    :optimizations :none}}]}
+</code></pre>
+<h3><a href="#configedn" id="configedn"></a>config.edn</h3>
+<p>I added <code>:module/moment</code> that provides <a href="https://momentjs.com/">Moment</a> in each seconds.</p>
+<pre><code class="language-clojure">{:re-integrant-app.module/moment {}
+
+ :re-integrant-app.module/router
+ [&quot;/&quot; {&quot;&quot;       :home
+       &quot;about&quot;  :about}]
+
+ :re-integrant-app.module/app
+ {:mount-point-id &quot;app&quot;
+  :routes #ig/ref :re-integrant-app.module/router
+  :moment #ig/ref :re-integrant-app.module/moment}}
+</code></pre>
+<h3><a href="#module" id="module"></a>Module</h3>
+<p>It doesn't do anything different from what I introduced in the last post. But I wrote process explicitly for the sake of ease. I added multimethods, reg-sub and reg-event to that we can add the implementation of handlers. We can register all of handlers by using it when the module initializes. The implementation of <code>::now</code> subscription means that it provides Moment object in each seconds only when it's subscribed. (Please refer to <a href="https://github.com/Day8/re-frame/blob/master/docs/Subscribing-To-External-Data.md">Subscribing to External Data</a>)</p>
+<pre><code class="language-clojure">;; Initial DB
+(def initial-db {::now nil})
+
+;; Subscriptions
+(defmulti reg-sub identity)
+(defmethod reg-sub ::now [k]
+  (re-frame/reg-sub-raw
+   k (fn [app-db _]
+       (let [close (create-loop #(re-frame/dispatch [::fetch-now]) 1000)]
+         (reagent.ratom/make-reaction
+          #(get-in @app-db [::now])
+          :on-dispose close)))))
+
+;; Events
+(defmulti reg-event identity)
+(defmethod reg-event ::init [k]
+  (re-frame/reg-event-db
+   k [re-frame/trim-v]
+   (fn-traced
+    [db _]
+    (-&gt; db
+        (merge initial-db)
+        (assoc ::now (js/moment))))))
+(defmethod reg-event ::halt [k]
+  (re-frame/reg-event-db
+   k [re-frame/trim-v]
+   (fn-traced
+    [db _]
+    (-&gt;&gt; db
+         (filter #(not= (namespace (key %)) (namespace ::x)))
+         (into {})))))
+(defmethod reg-event ::fetch-now [k]
+  (re-frame/reg-event-db
+   k [re-frame/trim-v]
+   (fn-traced
+    [db _]
+    (js/console.log &quot;tick!&quot;)
+    (assoc db ::now (js/moment)))))
+
+;; Init
+(defmethod ig/init-key :re-integrant-app.module/moment
+  [k {:keys [:dev]}]
+  (js/console.log (str &quot;Initializing &quot; k))
+  (when dev (js/console.log &quot;It's dev mode.&quot;))
+  (let [subs (-&gt;&gt; reg-sub methods (map key))      ;; Get the keywords of handlers.
+        events (-&gt;&gt; reg-event methods (map key))] ;; Same as above.
+    (-&gt;&gt; subs (map reg-sub) doall)                ;; Execute multimethod and register handlers.
+    (-&gt;&gt; events (map reg-event) doall)            ;; Same as above.
+    (re-frame/dispatch-sync [::init])
+    {:subs subs :events events}))
+
+;; Halt
+(defmethod ig/halt-key! :re-integrant-app.module/moment
+  [k {:keys [:subs :events]}]                      ;; Get the keywords of handlers.
+  (js/console.log (str &quot;Halting &quot; k))
+  (re-frame/dispatch-sync [::halt])
+  (-&gt;&gt; subs (map re-frame/clear-sub) doall)        ;; Clear handlers.
+  (-&gt;&gt; events (map re-frame/clear-event) doall))   ;; Same as above.
+</code></pre>
+<h3><a href="#view" id="view"></a>View</h3>
+<p>It's not different from what was in the previous post. Only when home-panel which is subscribing <code>::moment/now</code> opens, <code>:module/moment</code> provides Moment objects.</p>
+<pre><code class="language-clojure">(defn home-panel []
+  (let [now (re-frame/subscribe [::moment/now])]
+    (fn []
+      [:div
+       [sa/Segment
+        [:h2 &quot;Now&quot;]
+        (when-let [now @now]
+          (str now))]])))
+
+(defn about-panel []
+  (fn [] [:div &quot;About&quot;]))
+
+(defn none-panel []
+  [:div])
+
+(defmulti  panels identity)
+(defmethod panels :home-panel [] #'home-panel)
+(defmethod panels :about-panel [] #'about-panel)
+(defmethod panels :none [] #'none-panel)
+
+(def transition-group
+  (reagent/adapt-react-class js/ReactTransitionGroup.TransitionGroup))
+(def css-transition
+  (reagent/adapt-react-class js/ReactTransitionGroup.CSSTransition))
+
+(defn app-container []
+  (let [title (re-frame/subscribe [:re-integrant-app.module.app/title])
+        active-panel (re-frame/subscribe [::router/active-panel])]
+    (fn []
+      [:div
+       [sa/Menu {:fixed &quot;top&quot; :inverted true}
+        [sa/Container
+         [sa/MenuItem {:as &quot;span&quot; :header true} @title]
+         [sa/MenuItem {:as &quot;a&quot; :href &quot;/&quot;} &quot;Home&quot;]
+         [sa/MenuItem {:as &quot;a&quot; :href &quot;/about&quot;} &quot;About&quot;]]]
+       [sa/Container {:className &quot;mainContainer&quot; :style {:margin-top &quot;7em&quot;}}
+        (let [panel @active-panel]
+          [transition-group
+           [css-transition {:key panel
+                            :classNames &quot;pageChange&quot; :timeout 500 :className &quot;transition&quot;}
+            [(panels panel)]]])]])))
+</code></pre>
+<h3><a href="#corecljs" id="corecljs"></a>core.cljs</h3>
+<p>It's also not changed so much. You need to require all modules because we can't use integrant's load-namespaces in ClojureScript. And I defined config as an atom because I want to change it during development.</p>
+<pre><code class="language-clojure">(ns re-integrant-app.core
+  (:require [integrant.core :as ig]
+            [re-integrant-app.module.app]
+            [re-integrant-app.module.router]
+            [re-integrant-app.module.moment])
+  (:require-macros [re-integrant-app.utils :refer [read-config]]))
+
+(defonce system (atom nil))
+
+(def config (atom (read-config &quot;config.edn&quot;)))
+
+(defn start []
+  (reset! system (ig/init @config)))
+
+(defn stop []
+  (when @system
+    (ig/halt! @system)
+    (reset! system nil)))
+
+(defn ^:export init []
+  (start))
+</code></pre>
+<h3><a href="#devedn" id="devedn"></a>dev.edn</h3>
+<p>It's the development setting. I set <code>:dev true</code> in <code>:module/moment</code> to check if it's reflected.</p>
+<pre><code class="language-clojure">{:re-integrant-app.module/moment {:dev true}}
+</code></pre>
+<h3><a href="#usercljs" id="usercljs"></a>user.cljs</h3>
+<p>It's the main namespace during development. It loads dev.edn and merge it to core/config. Figwheel call <code>reset</code> on jsload.</p>
+<pre><code class="language-clojure">(ns cljs.user
+  (:require [re-integrant-app.core :refer [system config start stop]]
+            [meta-merge.core :refer [meta-merge]])
+  (:require-macros [re-integrant-app.utils :refer [read-config]]))
+
+(enable-console-print!)
+
+(println &quot;dev mode&quot;)
+
+(swap! config #(meta-merge % (read-config &quot;dev.edn&quot;)))
+
+(defn reset []
+  (stop)
+  (start))
+</code></pre>
+<h2><a href="#development" id="development"></a>Development</h2>
+<p>You can start Figwheel server and open cljs repl by following command. When you save the code, Figwheel detect that, build it and reflect it to browser.</p>
+<pre><code class="language-sh">% lein dev
+Figwheel: Cutting some fruit, just a sec ...
+Figwheel: Validating the configuration found in project.clj
+Figwheel: Configuration Valid ;)
+Figwheel: Starting server at http://0.0.0.0:3449
+Figwheel: Watching build - dev
+Figwheel: Cleaning build - dev
+Compiling build :dev to &quot;resources/public/js/compiled/app.js&quot; from [&quot;src&quot; &quot;dev/src&quot;]...
+Successfully compiled build :dev to &quot;resources/public/js/compiled/app.js&quot; in 29.414 seconds.
+Figwheel: Starting CSS Watcher for paths  [&quot;resources/public/css&quot;]
+Launching ClojureScript REPL for build: dev
+Figwheel Controls:
+          (stop-autobuild)                ;; stops Figwheel autobuilder
+          (start-autobuild id ...)        ;; starts autobuilder focused on optional ids
+          (switch-to-build id ...)        ;; switches autobuilder to different build
+          (reset-autobuild)               ;; stops, cleans, and starts autobuilder
+          (reload-config)                 ;; reloads build config and resets autobuild
+          (build-once id ...)             ;; builds source one time
+          (clean-builds id ..)            ;; deletes compiled cljs target files
+          (print-config id ...)           ;; prints out build configurations
+          (fig-status)                    ;; displays current state of system
+          (figwheel.client/set-autoload false)    ;; will turn autoloading off
+          (figwheel.client/set-repl-pprint false) ;; will turn pretty printing off
+  Switch REPL build focus:
+          :cljs/quit                      ;; allows you to switch REPL to another build
+    Docs: (doc function-name-here)
+    Exit: :cljs/quit
+ Results: Stored in vars *1, *2, *3, *e holds last exception object
+Prompt will show when Figwheel connects to your application
+[Rebel readline] Type :repl/help for online help info
+ClojureScript 1.10.339
+dev:cljs.user=&gt;
+</code></pre>
+<p>And as I created user.cljs as main namespace, we can get config, rewrite it and reset system in repl.</p>
+<pre><code class="language-sh">dev:cljs.user=&gt; @config
+{:re-integrant-app.module/moment {:dev true},
+ :re-integrant-app.module/router [&quot;/&quot; {&quot;&quot; :home, &quot;about&quot; :about}],
+ :re-integrant-app.module/app
+ {:mount-point-id &quot;app&quot;,
+  :routes {:key :re-integrant-app.module/router},
+  :moment {:key :re-integrant-app.module/moment}}}
+dev:cljs.user=&gt; (swap! config update-in [:re-integrant-app.module/moment :dev] not)
+{:re-integrant-app.module/moment {:dev false},
+ :re-integrant-app.module/router [&quot;/&quot; {&quot;&quot; :home, &quot;about&quot; :about}],
+ :re-integrant-app.module/app
+ {:mount-point-id &quot;app&quot;,
+  :routes {:key :re-integrant-app.module/router},
+  :moment {:key :re-integrant-app.module/moment}}}
+dev:cljs.user=&gt; (reset)
+{:re-integrant-app.module/moment
+ {:subs (:re-integrant-app.module.moment/now),
+  :events
+  (:re-integrant-app.module.moment/init
+   :re-integrant-app.module.moment/halt
+   :re-integrant-app.module.moment/fetch-now)},
+ :re-integrant-app.module/router
+ {:subs
+  (:re-integrant-app.module.router/active-panel
+   :re-integrant-app.module.router/route-params),
+  :events
+  (:re-integrant-app.module.router/init
+   :re-integrant-app.module.router/halt
+   :re-integrant-app.module.router/go-to-page
+   :re-integrant-app.module.router/set-active-panel),
+  :router
+  {:history #object[pushy.core.t_pushy$core31222],
+   :routes [&quot;/&quot; {&quot;&quot; :home, &quot;about&quot; :about}]}},
+ :re-integrant-app.module/app
+ {:subs (:re-integrant-app.module.app/title),
+  :events
+  (:re-integrant-app.module.app/init
+   :re-integrant-app.module.app/halt
+   :re-integrant-app.module.app/set-title),
+  :container #object[HTMLDivElement [object HTMLDivElement]]}}
+</code></pre>
+<h2><a href="#summary" id="summary"></a>Summary</h2>
+<p>In this post, I introduced how to develop ClojureScript Single Page Application by using the combination of integrant and re-frame. Although it is a little thick stack, you can adopt it to a complicated SPA that has a lot of depedencies, has complex lifecycle and need to change settings depending on profiles.</p>
+<h2><a href="#refferences" id="refferences"></a>Refferences</h2>
+<ul>
+<li><a href="https://223kazuki.github.io/re-integrant.html">How to modularize ClojureScript SPA</a></li>
+<li><a href="https://github.com/weavejester/integrant">integrant</a></li>
+<li><a href="https://github.com/Day8/re-frame/blob/master/docs/README.md">re-frame doc</a></li>
+</ul>
+</article></div></div></div><footer class="col-12"><ul class="center list-reset"><li class="inline-block mr1"><a href="/about.html">About</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/feed.rss">RSS</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/">Posts</a></li></ul></footer><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure-repl.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure-repl.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/lisp.min.js"></script><script>hljs.initHighlightingOnLoad();</script><script>console.log('Hello world');
+</script></body></html>

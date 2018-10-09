@@ -16,46 +16,6 @@ clj-rss
 </generator>
 <item>
 <link>
-https://223kazuki.github.io/reconsider-om-next.html
-</link>
-<guid>
-https://223kazuki.github.io/reconsider-om-next.html
-</guid>
-<pubDate>
-Wed, 21 Dec 2016 16:00:00 -0800
-</pubDate>
-<title>
-Om Next 振り返り
-</title>
-<description>
-Om Next 振り返り
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
-https://223kazuki.github.io/re-integrant-app.html
-</link>
-<guid>
-https://223kazuki.github.io/re-integrant-app.html
-</guid>
-<pubDate>
-Sun, 30 Sep 2018 17:00:00 -0700
-</pubDate>
-<title>
-Develop ClojureScript SPA with combination of integrant and re-frame
-</title>
-<description>
-Develop ClojureScript SPA with combination of integrant and re-frame
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
 https://223kazuki.github.io/re-integrant.html
 </link>
 <guid>
@@ -96,6 +56,46 @@ rixi223.kazuki@gmail.com
 </item>
 <item>
 <link>
+https://223kazuki.github.io/re-integrant-app.html
+</link>
+<guid>
+https://223kazuki.github.io/re-integrant-app.html
+</guid>
+<pubDate>
+Sun, 30 Sep 2018 17:00:00 -0700
+</pubDate>
+<title>
+Develop ClojureScript SPA with combination of integrant and re-frame
+</title>
+<description>
+Develop ClojureScript SPA with combination of integrant and re-frame
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/ipfs-clojurescript.html
+</link>
+<guid>
+https://223kazuki.github.io/ipfs-clojurescript.html
+</guid>
+<pubDate>
+Fri, 05 Oct 2018 17:00:00 -0700
+</pubDate>
+<title>
+Using IPFS from ClojureScript SPA
+</title>
+<description>
+Using IPFS from ClojureScript SPA
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
 https://223kazuki.github.io/start-blog.html
 </link>
 <guid>
@@ -109,6 +109,26 @@ Mon, 18 Sep 2017 17:00:00 -0700
 </title>
 <description>
 ブログ始めました
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/reconsider-om-next.html
+</link>
+<guid>
+https://223kazuki.github.io/reconsider-om-next.html
+</guid>
+<pubDate>
+Wed, 21 Dec 2016 16:00:00 -0800
+</pubDate>
+<title>
+Om Next 振り返り
+</title>
+<description>
+Om Next 振り返り
 </description>
 <author>
 rixi223.kazuki@gmail.com

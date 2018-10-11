@@ -16,40 +16,20 @@ clj-rss
 </generator>
 <item>
 <link>
-https://223kazuki.github.io/start-blog.html
+https://223kazuki.github.io/re-integrant-app.html
 </link>
 <guid>
-https://223kazuki.github.io/start-blog.html
+https://223kazuki.github.io/re-integrant-app.html
 </guid>
 <pubDate>
-Mon, 18 Sep 2017 17:00:00 -0700
+Sun, 30 Sep 2018 17:00:00 -0700
 </pubDate>
 <title>
-ブログ始めました
+Develop ClojureScript SPA with combination of integrant and re-frame
 </title>
 <description>
-ブログ始めました
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
-https://223kazuki.github.io/re-integrant.html
-</link>
-<guid>
-https://223kazuki.github.io/re-integrant.html
-</guid>
-<pubDate>
-Sun, 09 Sep 2018 17:00:00 -0700
-</pubDate>
-<title>
-How to modularize ClojureScript SPA
-</title>
-<description>
-In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
-https://github.com/223kazuki/cljs-dapp
+In this post, I'll introduce how to develop ClojureScript Single Page Application by using the combination of integrant and re-frame.
+I also introduced that in [the previous post](https://223kazuki.github.io/re-integrant.html). But as the previous example was special case, Ethereum DApp, it was a little complex to understand. So I develop an example again in pure cljs.
 </description>
 <author>
 rixi223.kazuki@gmail.com
@@ -97,27 +77,6 @@ rixi223.kazuki@gmail.com
 </item>
 <item>
 <link>
-https://223kazuki.github.io/re-integrant-app.html
-</link>
-<guid>
-https://223kazuki.github.io/re-integrant-app.html
-</guid>
-<pubDate>
-Sun, 30 Sep 2018 17:00:00 -0700
-</pubDate>
-<title>
-Develop ClojureScript SPA with combination of integrant and re-frame
-</title>
-<description>
-In this post, I'll introduce how to develop ClojureScript Single Page Application by using the combination of integrant and re-frame.
-I also introduced that in [the previous post](https://223kazuki.github.io/re-integrant.html). But as the previous example was special case, Ethereum DApp, it was a little complex to understand. So I develop an example again in pure cljs.
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
 https://223kazuki.github.io/ipfs-clojurescript.html
 </link>
 <guid>
@@ -132,6 +91,47 @@ Using IPFS from ClojureScript SPA
 <description>
 Recently I had a chance to use IPFS when I developed Ethereun DApp. So I played with it.
 Repository https://github.com/223kazuki/ipfs-chain
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/start-blog.html
+</link>
+<guid>
+https://223kazuki.github.io/start-blog.html
+</guid>
+<pubDate>
+Mon, 18 Sep 2017 17:00:00 -0700
+</pubDate>
+<title>
+ブログ始めました
+</title>
+<description>
+ブログ始めました
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/re-integrant.html
+</link>
+<guid>
+https://223kazuki.github.io/re-integrant.html
+</guid>
+<pubDate>
+Sun, 09 Sep 2018 17:00:00 -0700
+</pubDate>
+<title>
+How to modularize ClojureScript SPA
+</title>
+<description>
+In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
+https://github.com/223kazuki/cljs-dapp
 </description>
 <author>
 rixi223.kazuki@gmail.com

@@ -16,19 +16,19 @@ clj-rss
 </generator>
 <item>
 <link>
-https://223kazuki.github.io/reconsider-om-next.html
+https://223kazuki.github.io/start-blog.html
 </link>
 <guid>
-https://223kazuki.github.io/reconsider-om-next.html
+https://223kazuki.github.io/start-blog.html
 </guid>
 <pubDate>
-Wed, 21 Dec 2016 16:00:00 -0800
+Mon, 18 Sep 2017 17:00:00 -0700
 </pubDate>
 <title>
-Om Next 振り返り
+ブログ始めました
 </title>
 <description>
-Om Next 振り返り
+ブログ始めました
 </description>
 <author>
 rixi223.kazuki@gmail.com
@@ -49,6 +49,47 @@ Emacs on Bash on Windows と Windows でクリップボード共有
 </title>
 <description>
 Emacs on Bash on Windows と Windows でクリップボード共有
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/re-integrant.html
+</link>
+<guid>
+https://223kazuki.github.io/re-integrant.html
+</guid>
+<pubDate>
+Sun, 09 Sep 2018 17:00:00 -0700
+</pubDate>
+<title>
+How to modularize ClojureScript SPA
+</title>
+<description>
+In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
+https://github.com/223kazuki/cljs-dapp
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/reconsider-om-next.html
+</link>
+<guid>
+https://223kazuki.github.io/reconsider-om-next.html
+</guid>
+<pubDate>
+Wed, 21 Dec 2016 16:00:00 -0800
+</pubDate>
+<title>
+Om Next 振り返り
+</title>
+<description>
+Om Next 振り返り
 </description>
 <author>
 rixi223.kazuki@gmail.com
@@ -91,47 +132,6 @@ Develop ClojureScript SPA with combination of integrant and re-frame
 <description>
 In this post, I'll introduce how to develop ClojureScript Single Page Application by using the combination of integrant and re-frame.
 I also introduced that in [the previous post](https://223kazuki.github.io/re-integrant.html). But as the previous example was special case, Ethereum DApp, it was a little complex to understand. So I develop an example again in pure cljs.
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
-https://223kazuki.github.io/start-blog.html
-</link>
-<guid>
-https://223kazuki.github.io/start-blog.html
-</guid>
-<pubDate>
-Mon, 18 Sep 2017 17:00:00 -0700
-</pubDate>
-<title>
-ブログ始めました
-</title>
-<description>
-ブログ始めました
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
-https://223kazuki.github.io/re-integrant.html
-</link>
-<guid>
-https://223kazuki.github.io/re-integrant.html
-</guid>
-<pubDate>
-Sun, 09 Sep 2018 17:00:00 -0700
-</pubDate>
-<title>
-How to modularize ClojureScript SPA
-</title>
-<description>
-In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
-https://github.com/223kazuki/cljs-dapp
 </description>
 <author>
 rixi223.kazuki@gmail.com

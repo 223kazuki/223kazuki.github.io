@@ -6,7 +6,7 @@
 223Log
 </title>
 <description>
-223 log
+223 Log
 </description>
 <link>
 https://223kazuki.github.io/
@@ -14,27 +14,6 @@ https://223kazuki.github.io/
 <generator>
 clj-rss
 </generator>
-<item>
-<link>
-https://223kazuki.github.io/re-integrant.html
-</link>
-<guid>
-https://223kazuki.github.io/re-integrant.html
-</guid>
-<pubDate>
-Sun, 09 Sep 2018 17:00:00 -0700
-</pubDate>
-<title>
-How to modularize ClojureScript SPA
-</title>
-<description>
-In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
-https://github.com/223kazuki/cljs-dapp
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
 <item>
 <link>
 https://223kazuki.github.io/emacs-on-bash-on-windows.html
@@ -50,26 +29,6 @@ Emacs on Bash on Windows と Windows でクリップボード共有
 </title>
 <description>
 Emacs on Bash on Windows と Windows でクリップボード共有
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
-https://223kazuki.github.io/reconsider-om-next.html
-</link>
-<guid>
-https://223kazuki.github.io/reconsider-om-next.html
-</guid>
-<pubDate>
-Wed, 21 Dec 2016 16:00:00 -0800
-</pubDate>
-<title>
-Om Next 振り返り
-</title>
-<description>
-Om Next 振り返り
 </description>
 <author>
 rixi223.kazuki@gmail.com
@@ -111,6 +70,47 @@ Using IPFS from ClojureScript SPA
 <description>
 Recently I had a chance to use IPFS when I developed Ethereun DApp. So I played with it.
 Repository https://github.com/223kazuki/ipfs-chain
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/re-integrant.html
+</link>
+<guid>
+https://223kazuki.github.io/re-integrant.html
+</guid>
+<pubDate>
+Sun, 09 Sep 2018 17:00:00 -0700
+</pubDate>
+<title>
+How to modularize ClojureScript SPA
+</title>
+<description>
+In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
+https://github.com/223kazuki/cljs-dapp
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/reconsider-om-next.html
+</link>
+<guid>
+https://223kazuki.github.io/reconsider-om-next.html
+</guid>
+<pubDate>
+Wed, 21 Dec 2016 16:00:00 -0800
+</pubDate>
+<title>
+Om Next 振り返り
+</title>
+<description>
+Om Next 振り返り
 </description>
 <author>
 rixi223.kazuki@gmail.com

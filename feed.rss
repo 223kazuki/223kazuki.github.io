@@ -16,19 +16,20 @@ clj-rss
 </generator>
 <item>
 <link>
-https://223kazuki.github.io/start-blog.html
+https://223kazuki.github.io/re-integrant.html
 </link>
 <guid>
-https://223kazuki.github.io/start-blog.html
+https://223kazuki.github.io/re-integrant.html
 </guid>
 <pubDate>
-Mon, 18 Sep 2017 17:00:00 -0700
+Sun, 09 Sep 2018 17:00:00 -0700
 </pubDate>
 <title>
-ブログ始めました
+How to modularize ClojureScript SPA
 </title>
 <description>
-ブログ始めました
+In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
+https://github.com/223kazuki/cljs-dapp
 </description>
 <author>
 rixi223.kazuki@gmail.com
@@ -56,27 +57,6 @@ rixi223.kazuki@gmail.com
 </item>
 <item>
 <link>
-https://223kazuki.github.io/re-integrant.html
-</link>
-<guid>
-https://223kazuki.github.io/re-integrant.html
-</guid>
-<pubDate>
-Sun, 09 Sep 2018 17:00:00 -0700
-</pubDate>
-<title>
-How to modularize ClojureScript SPA
-</title>
-<description>
-In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
-https://github.com/223kazuki/cljs-dapp
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
 https://223kazuki.github.io/reconsider-om-next.html
 </link>
 <guid>
@@ -90,6 +70,26 @@ Om Next 振り返り
 </title>
 <description>
 Om Next 振り返り
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/start-blog.html
+</link>
+<guid>
+https://223kazuki.github.io/start-blog.html
+</guid>
+<pubDate>
+Mon, 18 Sep 2017 17:00:00 -0700
+</pubDate>
+<title>
+ブログ始めました
+</title>
+<description>
+ブログ始めました
 </description>
 <author>
 rixi223.kazuki@gmail.com

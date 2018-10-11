@@ -16,26 +16,6 @@ clj-rss
 </generator>
 <item>
 <link>
-https://223kazuki.github.io/emacs-on-bash-on-windows.html
-</link>
-<guid>
-https://223kazuki.github.io/emacs-on-bash-on-windows.html
-</guid>
-<pubDate>
-Thu, 05 Oct 2017 17:00:00 -0700
-</pubDate>
-<title>
-Emacs on Bash on Windows と Windows でクリップボード共有
-</title>
-<description>
-Emacs on Bash on Windows と Windows でクリップボード共有
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
 https://223kazuki.github.io/start-blog.html
 </link>
 <guid>
@@ -56,20 +36,40 @@ rixi223.kazuki@gmail.com
 </item>
 <item>
 <link>
-https://223kazuki.github.io/ipfs-clojurescript.html
+https://223kazuki.github.io/re-integrant.html
 </link>
 <guid>
-https://223kazuki.github.io/ipfs-clojurescript.html
+https://223kazuki.github.io/re-integrant.html
 </guid>
 <pubDate>
-Fri, 05 Oct 2018 17:00:00 -0700
+Sun, 09 Sep 2018 17:00:00 -0700
 </pubDate>
 <title>
-Using IPFS from ClojureScript SPA
+How to modularize ClojureScript SPA
 </title>
 <description>
-Recently I had a chance to use IPFS when I developed Ethereun DApp. So I played with it.
-Repository https://github.com/223kazuki/ipfs-chain
+In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
+https://github.com/223kazuki/cljs-dapp
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/emacs-on-bash-on-windows.html
+</link>
+<guid>
+https://223kazuki.github.io/emacs-on-bash-on-windows.html
+</guid>
+<pubDate>
+Thu, 05 Oct 2017 17:00:00 -0700
+</pubDate>
+<title>
+Emacs on Bash on Windows と Windows でクリップボード共有
+</title>
+<description>
+Emacs on Bash on Windows と Windows でクリップボード共有
 </description>
 <author>
 rixi223.kazuki@gmail.com
@@ -118,20 +118,20 @@ rixi223.kazuki@gmail.com
 </item>
 <item>
 <link>
-https://223kazuki.github.io/re-integrant.html
+https://223kazuki.github.io/ipfs-clojurescript.html
 </link>
 <guid>
-https://223kazuki.github.io/re-integrant.html
+https://223kazuki.github.io/ipfs-clojurescript.html
 </guid>
 <pubDate>
-Sun, 09 Sep 2018 17:00:00 -0700
+Fri, 05 Oct 2018 17:00:00 -0700
 </pubDate>
 <title>
-How to modularize ClojureScript SPA
+Using IPFS from ClojureScript SPA
 </title>
 <description>
-In this post, I will introduce a pattern to modularize Single Page Application written in ClojureScript. Sample project is bellow.
-https://github.com/223kazuki/cljs-dapp
+Recently I had a chance to use IPFS when I developed Ethereun DApp. So I played with it.
+Repository https://github.com/223kazuki/ipfs-chain
 </description>
 <author>
 rixi223.kazuki@gmail.com

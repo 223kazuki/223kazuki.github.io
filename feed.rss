@@ -16,6 +16,26 @@ clj-rss
 </generator>
 <item>
 <link>
+https://223kazuki.github.io/lacinia-app-tips.html
+</link>
+<guid>
+https://223kazuki.github.io/lacinia-app-tips.html
+</guid>
+<pubDate>
+Mon, 28 Jan 2019 16:00:00 -0800
+</pubDate>
+<title>
+Tips for lacinia app development
+</title>
+<description>
+
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
 https://223kazuki.github.io/reconsider-om-next.html
 </link>
 <guid>
@@ -29,6 +49,26 @@ Om Next 振り返り
 </title>
 <description>
 Om Next 振り返り
+</description>
+<author>
+rixi223.kazuki@gmail.com
+</author>
+</item>
+<item>
+<link>
+https://223kazuki.github.io/emacs-on-bash-on-windows.html
+</link>
+<guid>
+https://223kazuki.github.io/emacs-on-bash-on-windows.html
+</guid>
+<pubDate>
+Thu, 05 Oct 2017 17:00:00 -0700
+</pubDate>
+<title>
+Emacs on Bash on Windows と Windows でクリップボード共有
+</title>
+<description>
+Emacs on Bash on Windows と Windows でクリップボード共有
 </description>
 <author>
 rixi223.kazuki@gmail.com
@@ -50,67 +90,6 @@ Using IPFS from ClojureScript SPA
 <description>
 Recently I had a chance to use IPFS when I developed Ethereun DApp. So I played with it.
 Repository https://github.com/223kazuki/ipfs-chain
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
-https://223kazuki.github.io/re-integrant-app.html
-</link>
-<guid>
-https://223kazuki.github.io/re-integrant-app.html
-</guid>
-<pubDate>
-Sun, 30 Sep 2018 17:00:00 -0700
-</pubDate>
-<title>
-Develop ClojureScript SPA with combination of integrant and re-frame
-</title>
-<description>
-In this post, I'll introduce how to develop ClojureScript Single Page Application by using the combination of integrant and re-frame.
-I also introduced that in [the previous post](https://223kazuki.github.io/re-integrant.html). But as the previous example was special case, Ethereum DApp, it was a little complex to understand. So I develop an example again in pure cljs.
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
-https://223kazuki.github.io/lacinia-app-tips.html
-</link>
-<guid>
-https://223kazuki.github.io/lacinia-app-tips.html
-</guid>
-<pubDate>
-Mon, 28 Jan 2019 16:00:00 -0800
-</pubDate>
-<title>
-Tips for lacinia app development
-</title>
-<description>
-
-</description>
-<author>
-rixi223.kazuki@gmail.com
-</author>
-</item>
-<item>
-<link>
-https://223kazuki.github.io/party-repl.html
-</link>
-<guid>
-https://223kazuki.github.io/party-repl.html
-</guid>
-<pubDate>
-Sat, 15 Dec 2018 16:00:00 -0800
-</pubDate>
-<title>
-REPL for pair programming with Party REPL
-</title>
-<description>
-REPL for pair programming with Party REPL
 </description>
 <author>
 rixi223.kazuki@gmail.com
@@ -159,19 +138,20 @@ rixi223.kazuki@gmail.com
 </item>
 <item>
 <link>
-https://223kazuki.github.io/emacs-on-bash-on-windows.html
+https://223kazuki.github.io/re-integrant-app.html
 </link>
 <guid>
-https://223kazuki.github.io/emacs-on-bash-on-windows.html
+https://223kazuki.github.io/re-integrant-app.html
 </guid>
 <pubDate>
-Thu, 05 Oct 2017 17:00:00 -0700
+Sun, 30 Sep 2018 17:00:00 -0700
 </pubDate>
 <title>
-Emacs on Bash on Windows と Windows でクリップボード共有
+Develop ClojureScript SPA with combination of integrant and re-frame
 </title>
 <description>
-Emacs on Bash on Windows と Windows でクリップボード共有
+In this post, I'll introduce how to develop ClojureScript Single Page Application by using the combination of integrant and re-frame.
+I also introduced that in [the previous post](https://223kazuki.github.io/re-integrant.html). But as the previous example was special case, Ethereum DApp, it was a little complex to understand. So I develop an example again in pure cljs.
 </description>
 <author>
 rixi223.kazuki@gmail.com

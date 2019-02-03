@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html itemtype="http://schema.org/Blog" lang="en"><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-127383373-1"></script><script>window.dataLayer = window.dataLayer || [];
+       function gtag(){dataLayer.push(arguments);}
+       gtag('js', new Date());
+       gtag('config', 'UA-127383373-1');</script><title>223Log</title><meta charset="utf-8"><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"><link href="/css/normalize.css" rel="stylesheet"><link href="//unpkg.com/basscss@8.0.2/css/basscss.min.css" rel="stylesheet"><meta content="summary" name="twitter:card"><meta content="REPL for pair programming with Party REPL | 223Log" name="twitter:title"><meta content="goronao" name="twitter:creator"><meta content="REPL for pair programming with Party REPL" name="twitter:description"><meta content="https://223kazuki.github.io/images/me.jpg" name="twitter:image"><link href="//cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css" rel="stylesheet"><link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet"><link href="/css/app.css" rel="stylesheet"></head><body><header class="fixed top-0 fit col-12"><p class="center"><a href="/">223 Log</a></p></header><div class="content mx-auto mt3 pt2"><div class="clearfix"><div class="post"><h1>REPL for pair programming with Party REPL</h1><div class="fit clearfix"><div class="mb1 col sm-col-12 md-col-3"><time class="left">12/16/2018</time></div><div class="col sm-col-12 md-col-9"><a class="ml1 mb1 tag right" href="/tags/ATOM.html">ATOM</a><a class="ml1 mb1 tag right" href="/tags/ClojureScript.html">ClojureScript</a><a class="ml1 mb1 tag right" href="/tags/REPL.html">REPL</a><a class="ml1 mb1 tag right" href="/tags/Clojure.html">Clojure</a></div></div><hr class="mb2"><article class="markdown-body mb2"><p>In this post, I will introduce how to try pair programming with Clojure REPL.</p>
+<h2><a href="#whats-party-repl" id="whats-party-repl"></a>What's Party REPL</h2>
+<p>Although pair programming is not a silver vallet, it is effective in many situation. Recently most of modern editors support the remote editing feature. So it's not necessary to sit together in front of the PC in order to do pair programming. But how do you feel if you can do pair programming on &quot;running application&quot;.?</p>
+<p>Yes, you can! ...if you use clojure. <a href="https://github.com/party-repl">Party REPL</a> that was introduced in <a href="http://2018.clojure-conj.org/">clojure/conj 2018</a> enables you to do that. <a href="https://www.youtube.com/watch?v=AJING0Vigpg"><img src="http://img.youtube.com/vi/AJING0Vigpg/0.jpg" alt="Party REPL — A multi-player REPL built for pair-programming" /></a> Party REPL is Atom editor plugin that is developed by using cljs and shadow-cljs. If you use it with TeleType that is also Atom plugin for pair programming, it enables to do pair programming on running application. It is now version 1.0. And it supports Linux/Mac. You can use it with nrepl and unrepl(socket REPL) launched by leiningen. I will introduce how to install and how to use it in this post.</p>
+<h3><a href="#teletype" id="teletype"></a>TeleType</h3>
+<p>TeleType is an Atom plugin for pair programming. You can edit file in remote TeleType は Atom のペアプログラミング用プラグインで、リアルタイムにファイルの共同編集を行なえます。使用するには Github による認証が必要ですが、編集時は WebRTC により PC 同士が直接接続されます。CRDT: Conflict-free Replicated Data Types という編集方式を取っており、編集内容の衝突も起こらない（らしい）です。</p>
+<h3><a href="#about-clojure-repl" id="about-clojure-repl"></a>About Clojure REPL</h3>
+<p>Clojure は Code as Data という特性を持ち、コードが全て構造化・記述・操作可能なデータです。また、コードを入力として受け取り、プログラムを実行し、その結果をデータとして出力する REPL(Read Eval Print Loop) という機能を持ちます。REPL に入力するコードは文字列で表現されたデータであるため、入出力を TCP 経由にすることも出来ます。</p>
+<p>REPL はいくつかの階層に分かれます。(Clojure 1.9 以降の場合)</p>
+<ul>
+<li>STD/IO REPL ... 標準入出力による REPL。</li>
+<li>Socket REPL ... 上記に TCP 入出力をかぶせた REPL。</li>
+<li>nrepl ... 上記の上に構築された REPL サーバ・クライアントプロトコル。ミドルウェア（piggieback など）により拡張可能。</li>
+</ul>
+<p>nrepl は現状最も使われている REPL ですが nrepl サーバをミドルウェアで拡張するとクライアント REPL 側にも対応したツールが必要となってしまいます。これはローカル開発では問題ではありませんが、リモートの nrepl サーバに接続する場合は問題が起こる可能性があります。<strong>unrepl</strong> はそのために開発された新しい REPL で、接続時にサーバから必要なツールをクライアント側に読み込ませることでこの問題を解決しようとしています。また、Clojure 1.10 からはよりシンプルな prepl というストリームベースの REPL が標準に追加されるようです。Party REPL では unrepl を使ったほうがより多くの機能を使えるようなので、この記事では unrepl を使います。</p>
+<h2><a href="#setup" id="setup"></a>Setup</h2>
+<p>ペアプログラミングに参加するホスト、ゲスト PC をそれぞれセットアップします。そもそも Atom を使ってなかったので、Clojure 開発環境のセットアップからやります。OS は macOS Mojave 10.14.1、Atom のバージョンは 1.33.0 です。</p>
+<h3><a href="#install-atom" id="install-atom"></a>Install Atom</h3>
+<p>公式サイトから Atom をインストールします。 <a href="https://atom.io/">https://atom.io/</a></p>
+<h3><a href="#install-plugins" id="install-plugins"></a>Install plugins</h3>
+<p>必要に応じて Linter や Formatter などを導入します。私は下記の記事・動画を参考にセットアップしました。REPL 関係は紛らわしいのでインストールしないでおいて下さい。 <a href="https://medium.com/@jacekschae/slick-clojure-editor-setup-with-atom-a3c1b528b722">Slick Clojure Editor Setup with Atom</a></p>
+<h3><a href="#install-party-repl" id="install-party-repl"></a>Install Party REPL</h3>
+<p>下記のプラグインをインストールします。バージョンは執筆時点の最新です。</p>
+<ul>
+<li>teletype v0.13.3</li>
+<li>clojure-party-repl v1.1.0</li>
+</ul>
+<h3><a href="#sign-in-teletype" id="sign-in-teletype"></a>Sign in TeleType</h3>
+<p>TeleType を使うためには Github にサインインする必要があります。TeleType メニューからサインインリンクに飛び、取得したトークンを入力して下さい。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/4332428b-dddc-8c1d-a73e-7da4b4733ce8.png" alt="Screen Shot 2018-12-06 at 7.28.10 PM.png" /></p>
+<p>以上でセットアップは完了です。</p>
+<h2><a href="#use-it" id="use-it"></a>Use it</h2>
+<p>私には conj デモのように Clojurian な奥さんはいないので一人で PC 並べてパーティします。Dark Theme がホスト、Light Theme がゲストです。</p>
+<h3><a href="#create-project" id="create-project"></a>Create project</h3>
+<p>開発するプロジェクトは Leiningen プロジェクトであればよいですが、今回は開発中にリセットが可能な <a href="https://github.com/duct-framework/duct">duct</a> を使うことにします。</p>
+<pre><code>lein new duct lets-party +site +example +ataraxy +cljs
+cd lets-party
+lein duct setup
+</code></pre>
+<p>unrepl を使うためには Socket REPL サーバを公開する必要があるため、project.clj に下記を追加してください。デフォルトではループバックアドレスで起動してリモートから接続出来ないため、<code>:address \&quot;0.0.0.0\&quot;</code> も忘れずにつけて下さい。</p>
+<pre><code class="language-clojure">:jvm-opts [&quot;-Dclojure.server.repl={:address \&quot;0.0.0.0\&quot; :port 9999 :accept clojure.core.server/repl}&quot;]
+</code></pre>
+<p>後はお好みですが REPL を落とさずに開発を進めたいので、起動中のアプリに依存を読み込ませることの出来る <a href="https://github.com/pallet/alembic">alembic</a> を開発プロファイルに追加しときます。</p>
+<pre><code class="language-clojure">[alembic &quot;0.3.2&quot;]
+</code></pre>
+<p>以上でプロジェクトの準備は完了です。プロジェクトは Github に push して、参加者全員がチェックアウトして下さい。 <a href="https://github.com/223kazuki/lets-party">https://github.com/223kazuki/lets-party</a></p>
+<h3><a href="#run-local-repl" id="run-local-repl"></a>Run local REPL</h3>
+<p>まずはホスト側の準備です。ターミナルから repl を起動して下さい。</p>
+<pre><code class="language-sh">cd lets-party
+lein repl
+</code></pre>
+<p>Party REPL から REPL を立ち上げることも可能ですが、nrepl クライントが開いて unrepl クライアントが開けなかったため、別途立ち上げた REPL サーバに接続する方法を取ります。</p>
+<h3><a href="#connect-to-local-repl" id="connect-to-local-repl"></a>Connect to local REPL</h3>
+<p><code>Clojure Party Repl: ConnectToRemoteRepl</code> コマンドを実行すると下記のフォームが開くので入力し接続して下さい。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/f6e8615c-def6-468f-8e95-0b0cfe8c8e3a.png" alt="Screen Shot 2018-12-07 at 10.57.18 AM.png" /> 下記のようなパネル構成となります。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/c48dbe36-6e9f-0567-0a4c-46cb33e10b6a.png" alt="Screen Shot 2018-12-07 at 10.58.48 AM.png" /> 右上がこれまでの実行結果が表示される REPL History パネル、右下が REPL にコードを送る REPL Entry パネルです。コマンドを実行するときは REPL Entry パネルに入力し、<code>Clojure Party Repl: SendToRepl</code> を実行して下さい。SendToRepl は <code>Cmd-Enter</code> にキーバインドされていますが、私は他のホットキーとぶつかるので <code>Ctrl-Enter</code> に割り当てました。実行結果は REEPL History パネルに反映されます。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/efcc20f5-5f91-071d-03d3-4c366c622f2e.png" alt="Screen Shot 2018-12-07 at 11.01.45 AM.png" /> また、ソースファイル上でも実行可能です。Eval したい範囲を選択、もしくは括弧の後ろにカーソルを置いて <code>SendToRepl</code> でコードが評価されます。REPL 上の名前空間を移動するために ns フォームを評価することもお忘れなく。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/95dcc01b-a9ba-9ceb-0255-a5ed092c78c3.png" alt="Screen Shot 2018-12-07 at 11.03.46 AM.png" /> 更に遅延シーケンスやサイズの大きいシーケンスに関しては折りたたみ表示をサポートしており、<code>...more</code> をクリックすることで展開していくことが可能です。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/60edd808-13a5-9c0c-0d7f-b51ff5f07c70.png" alt="Screen Shot 2018-12-07 at 11.04.26 AM.png" /></p>
+<h3><a href="#share-file-by-teletype" id="share-file-by-teletype"></a>Share file by TeleType</h3>
+<p>では、ペアプログラミングに移るために TeleType でソースファイルを共有します。ホストは共有を許可してリンクを取得しゲストに知らせます。TeleType アイコンをクリックし、&quot;Share&quot; でリンクを取得し、Slack などでゲストに通知します。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/cbb49710-0239-06ec-dcea-8bc43285c947.png" alt="Screen Shot 2018-12-07 at 11.50.26 AM.png" /> ゲストは TeleType メニューの &quot;Join A Portal&quot; にリンクを入力することでホストの開いているファイルを開けるようになります。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/7ff77483-7500-09a0-c026-a5ebf00d66ef.png" alt="Screen Shot 2018-12-07 at 11.07.01 AM.png" /> 青と緑のカーソルがそれぞれホスト、ゲストのものです。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/d04de1eb-c08e-7b67-d721-d9ceb496d731.png" alt="Screen Shot 2018-12-07 at 11.07.57 AM.png" /> ゲストがファイルを編集するとリアルタイムにホスト側にも反映されます。</p>
+<h3><a href="#connect-to-remote-repl" id="connect-to-remote-repl"></a>Connect to remote REPL</h3>
+<p>では、いよいよゲストからホスト REPL に接続します。ホストがローカル REPL に接続したのと同様に <code>Clojure Party Repl: ConnectToRemoteRepl</code> でホスト REPL にリモート接続します。Host だけホストのものに変えてください。接続すると Entry, History パネルが開きますが、これは REPL サーバには接続していますが自分のローカルで起動した REPL クライアントです。ホスト側の REPL クライアントを共有して使いたいので、下記の２バッファーを開きます。</p>
+<ul>
+<li><code>@223kazuki: Clojure Party REPL Entry lets-party</code></li>
+<li><code>@223kazuki: Clojure Party REPL History lets-party</code></li>
+</ul>
+<p><img src="https://qiita-image-store.s3.amazonaws.com/0/109888/5e27d02c-9271-5541-935d-ccbe0faa6293.png" alt="Screen Shot 2018-12-07 at 11.14.20 AM.png" /> これで REPL クライアントも共有しながら開発が出来るようになりました。ゲストも Entry パネルやソースファイルから　<code>SendToRepl</code> でコードを実行することが出来ます。また、ホスト側ではゲストの操作をリアルタイムに見ながら、かつ Entry では実行履歴を補完（<code>Cmd-up</code>）することも可能です。</p>
+<h2><a href="#lets-paty" id="lets-paty"></a>Let's Paty!</h2>
+<p>では、ペアプログラミング、いやパーティプログラミングを始めましょう。duct にハンドラを追加します。</p>
+<h3><a href="#1-run-application" id="1-run-application"></a>1. Run application</h3>
+<p>REPL Entry から <code>(dev)</code>, <code>(go)</code> を実行し、アプリケーションを起動します。</p>
+<h3><a href="#2-add-handler" id="2-add-handler"></a>2. Add handler</h3>
+<p>ファイルの追加はホスト側でしか出来ないので、ホスト側はファイルを追加します。</p>
+<ul>
+<li>src/lets_party/handler/party.clj</li>
+</ul>
+<p>実装はゲスト側で担当します。それぞれファイルを編集し、party エンドポイントを追加します。</p>
+<ul>
+<li>src/lets_party/handler/party.clj</li>
+<li>resources/lets_party/config.edn</li>
+</ul>
+<p><img src="https://qiita-image-store.s3.amazonaws.com/0/109888/2ce84dca-2204-f951-0060-00dd1daa6d8d.png" alt="Screen Shot 2018-12-07 at 11.25.34 AM.png" /> unrepl はデフォルトで標準出力の表示をサポートしてないようです。</p>
+<h3><a href="#3-inject-dependency-by-alembic" id="3-inject-dependency-by-alembic"></a>3. Inject dependency by alembic</h3>
+<p>ここでゲストはエンドポイント開発に必要なライブラリ（hiccup）が足りないことに気付きます。ここで alembic を使います。 project.clj を編集し、</p>
+<pre><code class="language-project.clj:clojure">+ [hiccup &quot;1.0.5&quot;]
+</code></pre>
+<p>Entry パネルから alembic でプロジェクトを再読込します。</p>
+<pre><code class="language-clojure">(require 'alembic.still)
+(alembic.still/load-project)
+</code></pre>
+<p>これで REPL を切らずに必要なライブラリを使えるようになりました。エンドポイントに依存を追加して <code>SendToRepl</code> して下さい。</p>
+<pre><code class="language-party.clj">(ns lets-party.handler.party
+  (:require [ataraxy.core :as ataraxy]
+            [ataraxy.response :as response] 
+            [clojure.java.io :as io]
+            [integrant.core :as ig]
+            [hiccup.page :refer [html5 include-css include-js]])) ;; 追加
+</code></pre>
+<h3><a href="#4-inplement-handler" id="4-inplement-handler"></a>4. Inplement handler</h3>
+<p>必要に応じてホストが関数を実装したりもできます。関数の動作確認もソースファイルから行えます。エクストリーム・プログラミング的な使い方で役割分担しての開発も行えます。ns の切り替えでぶつからないように注意する必要はありますが。（それぞれ別の REPL クライアントを使うという方法もあります）</p>
+<pre><code class="language-clojure:party.clj">(defn- party [n]
+  (case n
+    1 &quot;Party1&quot;
+    2 &quot;Party2&quot;
+    3 &quot;Party3&quot;)) ;; こちらはホストが実装。
+
+(comment
+  (party 1)
+  (party 2)
+  (party 3)) ;; 動作確認用。範囲選択して `SendToRepl` で試せる。
+
+(defn- party-page [context]
+  (let [body
+        (html5
+         [:head
+          [:meta {:charset &quot;utf-8&quot;}]
+          [:meta {:name &quot;viewport&quot; :content &quot;width=device-width, initial-scale=1&quot;}]
+          (include-css &quot;//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css&quot;)
+          [:title &quot;Let's Party!&quot;]]
+         [:body
+          [:h1 (party 1)]
+          (include-js &quot;/js/main.js&quot;)])]
+    {:status 200 :headers {&quot;Content-Type&quot; &quot;text/html&quot;} :body body})) ;; ここはゲストが実装。
+
+(defmethod ig/init-key :lets-party.handler/party [_ _]
+  (fn [{[_] :ataraxy/result}]
+    (party-page nil)))
+</code></pre>
+<h3><a href="#5-reset-application" id="5-reset-application"></a>5. Reset application</h3>
+<p>実装後は <code>(in-ns 'dev)</code>, <code>(reset)</code> を実行することでハンドラをサーバに追加し、ブラウザでチェックします。</p>
+<p>http://[host address]:3000/party</p>
+<p>注意ですが、あくまでもアプリケーションはホスト側で起動しており、そこから何でも出来てしまうので共有には細心の注意を払って下さい。 <img src="https://qiita-image-store.s3.amazonaws.com/0/109888/cb043a59-4baf-0b7e-4c72-6b599074af29.png" alt="Screen Shot 2018-12-07 at 11.34.21 AM.png" /></p>
+<p>この手順を繰り返すことで、REPL を停止することなくソースファイルに編集した内容をコードとしてアプリケーションに反映しながら開発することが出来ます。勿論 REPL を切ったら（切らざるを得ない状況に追い込んだら）負けです。</p>
+<h2><a href="#summary" id="summary"></a>Summary</h2>
+<p>Party REPL によるパーティプログラミングを紹介をしました。ペアプログラミングはこれだけ広まっていますが、起動しているアプリケーションの状態を共有しながら開発を行うという発想は Clojure + REPL のパワーを持ってしないとなかなか生まれないものだと思います。Atom というのが emacs ユーザには若干ネックで、cider などに比べるとまだ機能は少ないですが、新しいペアプログラミングの道を開く素晴らしいツールなので是非お試し下さい。</p>
+<h2><a href="#参考" id="参考"></a>参考</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=AJING0Vigpg">Party REPL — A multi-player REPL built for pair-programming: Tomomi Livingstone + Hans Livingstone</a></li>
+<li><a href="https://atom.io/packages/clojure-party-repl">Party REPL</a></li>
+<li><a href="https://medium.com/@jacekschae/slick-clojure-editor-setup-with-atom-a3c1b528b722">Slick Clojure Editor Setup with Atom</a></li>
+</ul>
+</article></div></div></div><footer class="col-12"><ul class="center list-reset"><li class="inline-block mr1"><a href="/about.html">About</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/feed.rss">RSS</a></li><li class="inline-block mr1">/</li><li class="inline-block mr1"><a href="/">Posts</a></li></ul></footer><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/clojure-repl.min.js"></script><script>hljs.initHighlightingOnLoad();</script><script></script></body></html>

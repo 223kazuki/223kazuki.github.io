@@ -11,8 +11,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-    - name: Build
-      run: lein do clean, garden once, cljsbuild once min 
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '9.0.4'
+    - uses: DeLaGuardo/setup-clojure@2.0
+      with:
+        boot: '2.8.3'
+    - run: boot build
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v2.5.1
       env:

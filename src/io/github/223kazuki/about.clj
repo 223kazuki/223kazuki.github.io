@@ -15,7 +15,10 @@
            [:p.h2 "Career"]
            [:table.col-12
             [:tr
-             [:td "May/2017 - Now"]
+             [:td "June/2019 - Now"]
+             [:td "Senior System Engineer @ San Francisco"]]
+            [:tr
+             [:td "May/2017 - June/2019"]
              [:td "Senior System Engineer @ San Jose, CA"]]
             [:tr
              [:td "Apr/2012 - May/2017"]
@@ -39,9 +42,16 @@
            [:p.h2 "Skills/Interests"]
            [:ul
             [:li "Clojure / ClojureScript"]
+            [:li "Datomic"]
             [:li "Web Development"]
-            [:li "Java"]
-            [:li "JavaScript"]
+            [:li "Java / Kotlin"]
+            [:li "JavaScript / TypeScript"]
             [:li "React.js"]
             [:li "Rust"]
-            [:li "Blockchain"]]]))
+            [:li "Blockchain"]
+            [:li "VR / Unity"]
+            [:li "Mobile App Development / Flutter"]
+            [:li "CI / CD / drone.io"]
+            [:li "Kafka"]
+            [:li "kubernates"]
+            [:li "Competitive programming"]]]))

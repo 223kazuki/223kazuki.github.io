@@ -16,13 +16,13 @@
            [:table.col-12
             [:tr
              [:td "Jun / 2019 - Now"]
-             [:td "Senior Software Engineer @ San Francisco"]]
+             [:td "Senior Software Engineer @ Parkside Technologies in San Francisco, CA"]]
             [:tr
              [:td "May / 2017 - Jun / 2019"]
-             [:td "Senior System Engineer @ San Jose, CA"]]
+             [:td "Senior System Engineer @ TIS R&D Center Inc. in San Jose, CA"]]
             [:tr
              [:td "Apr / 2012 - May / 2017"]
-             [:td "System Engineer @ Tokyo"]]
+             [:td "System Engineer @ TIS Inc. in Tokyo, Japan"]]
             [:tr
              [:td "Apr / 2012 - May / 2017"]
              [:td (str "Manager @ Kokugakuin University Sumo Club"
@@ -45,13 +45,15 @@
             [:li "Clojure / ClojureScript"]
             [:li "integrant / duct"]
             [:li "reagent / re-frame"]
+            [:li "GraphQL / lacinia"]
             [:li "Datomic"]
+            [:li "Metabase / Presto Server"]
             [:li "Java / Kotlin"]
             [:li "JavaScript / TypeScript / React.js"]
-            [:li "CI / CD / drone.io"]
-            [:li "Kafka"]
-            [:li "k8s"]
-            [:li "Terraform"]
+            [:li "CI/CD / Drone CI / CircleCI / Github Actions"]
+            [:li "Kafka / Kafka Streams Application"]
+            [:li "AWS / Terraform"]
+            [:li "k8s / kustomize / EKS"]
             [:li "Rust"]
             [:li "Blockchain (Ethereum / Solidity / Web3 / ipfs)"]
             [:li "VR / Unity"]

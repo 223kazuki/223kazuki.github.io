@@ -2,10 +2,10 @@
  :source-paths #{"src"}
  :resource-paths #{"resources"}
  :target-path #{"./public"}
- :dependencies '[[perun "0.4.2-SNAPSHOT"]
+ :dependencies '[[perun "0.5.0-SNAPSHOT"]
                  [hiccup "1.0.5"]
                  [pandeiro/boot-http "0.8.3"]
-                 [clj-time "0.15.1"]])
+                 [clj-time "0.15.2"]])
 
 (require '[clojure.string :as str]
          '[io.perun :as perun]
